@@ -13,6 +13,8 @@ logo='data:image/svg+xml;base64,'+base64.b64encode((root/'mws-mark.svg').read_by
 html=html.replace('src="mws-mark.svg"','src="'+logo+'"')
 chart='data:image/svg+xml;base64,'+base64.b64encode((root/'resources-quality.svg').read_bytes()).decode()
 html=html.replace('src="resources-quality.svg"','src="'+chart+'"')
+for qr in ('qr-github','qr-slides'):
+    html=html.replace('src="assets/'+qr+'.svg"','src="data:image/svg+xml;base64,'+base64.b64encode((root/'assets'/(qr+'.svg')).read_bytes()).decode()+'"')
 import glob
 for f in sorted(glob.glob(str(root/'assets/team/*.png'))):
     rel='assets/team/'+Path(f).name
