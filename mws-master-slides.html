@@ -618,31 +618,6 @@ python cfe/ensemble.py cv
   <footer class="slide-footer"><span class="slide-footer__source">cfe/flywheel.py · реранкер ens-v1 · silver и очередь: ml/runs/flywheel-val</span><span class="page-number"></span></footer>
 </section></div>
 
-<!-- НОВЫЙ АТРИБУТ -->
-<div class="slide-shell" data-name="Новый атрибут" hidden><section class="slide train-slide" data-master="spec">
-  <header class="topline"><p class="eyebrow">Развитие</p><span class="master-label">Новый атрибут</span></header>
-  <h2 class="slide-title">При появлении нового атрибута</h2>
-  <p class="train-lead">Тип факта зашит в схеме, промптах и признаках реранкера, поэтому это переобучение, а не правка конфига.</p>
-  <div class="slide-body train-cols" style="grid-template-columns:1fr 1fr">
-    <div class="train-col">
-      <h3>Что нужно</h3>
-      <ul>
-        <li><b>Примеры нового типа:</b> размеченные (gold) или сгенерированные LLM с проверкой; без них модель тип не выучит. Нужны и звонки без него.</li>
-        <li><b>Правки в коде</b> везде, где перечислены атрибуты: схема GLiNER, кодеки Gemma, сборка SFT, метрики, признаки реранкера, API и валидатор.</li>
-      </ul>
-    </div>
-    <div class="train-col">
-      <h3>Переобучение и проверка</h3>
-      <ul>
-        <li>GLiNER ≈ 1 ч 10 мин, Gemma ≈ 2 ч 15 мин (V100), реранкер ≈ 25 мин на CPU; старые веса реранкера несовместимы (меняется число признаков).</li>
-        <li><b>Проверка:</b> 0 нарушений схемы; пять метрик старых типов на val и шумных срезах не хуже прежних больше чем на 0,005; precision и recall нового типа отдельно.</li>
-        <li class="muted">Дешёвый вариант: добавить тип только в GLiNER и реранкер, без Gemma. Подходит для коротких значений из каталога, не для свободных формулировок.</li>
-      </ul>
-    </div>
-  </div>
-  <footer class="slide-footer"><span class="slide-footer__source">Подробный порядок и список файлов: ml/docs/RESOURCES_QUALITY.md, раздел «Как добавить новый тип факта»</span><span class="page-number"></span></footer>
-</section></div>
-
 <!-- МАСШТАБИРОВАНИЕ · МНОГОЯЗЫЧНОСТЬ -->
 <div class="slide-shell" data-name="Многоязычность" hidden><section class="slide section-slide section-slide--light scale-detail" data-master="section">
   <header class="topline"><div class="brand"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCA0NCA0NCIgY2xhc3M9ImhlYWRlci1ib3R0b21fX2xvZ28iPjxtYXNrIGlkPSJhIiB3aWR0aD0iNDUiIGhlaWdodD0iNDQiIHg9IjAiIHk9IjAiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHN0eWxlPSJtYXNrLXR5cGU6bHVtaW5hbmNlOyI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQ0LjAwMyAwaC00NHY0NGg0NHoiPjwvcGF0aD48L21hc2s+PGcgbWFzaz0idXJsKCNhKSI+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQ0IDBIMHY0NGg0My45ODJ6Ij48L3BhdGg+PHBhdGggZmlsbD0iI2ZmMDAzMiIgZD0ibTEzLjQwMiAzLjM5LTMuMjMgNi43MDhMNi45MjcgMy4zOUgzLjM5M3YxMC4xNTJoMi40NzVWNi4yNzhsMy4xNTcgNi4xMzRoMi4yNmwzLjE1Ny02LjEzNHY3LjI2NGgyLjQ3NVYzLjM5ek0zOS4zOTMgMy4zOWwtMS44ODMgNy40OTctMi4xODgtNy40OTdoLTIuOTI0bC0yLjE4OSA3LjQ5Ny0xLjg4My03LjQ5N2gtMi41ODNsMi42MDEgMTAuMTUyaDMuMjY1bDIuMjYtNy42NiAyLjI2IDcuNjZoMy4yNjRMNDEuOTk0IDMuMzl6TTM1LjQzIDM0LjUxMmMtMS42ODctLjEyNi0zLjE0LS4yMzQtMy4xNC0xLjEzIDAtLjk4NyAxLjAwNS0xLjE2NiAyLjcyNy0xLjE2NiAxLjUwNiAwIDIuNTQ3LjE5NyAyLjcyNiAxLjE4M2gyLjg1MmMtLjE5Ny0yLjEzNC0xLjk3My0zLjEyLTUuNTc4LTMuMTJzLTUuNDg5IDEuMDQtNS40ODkgMy4xNzRjMCAyLjY3MyAyLjk2IDIuODg4IDUuMzI3IDMuMDUgMS42ODcuMTI1IDMuMTU3LjIxNSAzLjE1NyAxLjE4MyAwIDEuMDA1LTEuMTMgMS4yMi0yLjg1MiAxLjIyLTIuMjI0IDAtMi43OC0uNDg0LTIuOTYtMS4zODFIMjkuMzVjLjIzMyAyLjM2OCAxLjkxOSAzLjMxOCA1LjgxMSAzLjMxOCAxLjk1NiAwIDMuMzM3LS4yNSA0LjIzNC0uNzcxLjkxNC0uNTM4IDEuMzgtMS4zODEgMS4zOC0yLjU2NSAwLTIuNi0yLjk1OS0yLjgxNi01LjM0NS0yLjk5NSI+PC9wYXRoPjwvZz48cGF0aCBmaWxsPSIjZmYwMDMyIiBkPSJNNDQgNDRIMFYwaDQzLjk4MnpNLjQ4NCA0My41MTZoNDMuMDE0Vi40ODRILjQ4NHoiPjwvcGF0aD48L3N2Zz4=" alt="MWS">MWS Cloud Platform</div><span class="master-label">Масштабирование</span></header>
