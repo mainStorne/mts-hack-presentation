@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MWS · Зачем это бизнесу — 1 минута</title>
+<link rel="stylesheet" href="masters.css">
+<style>
+  /* Только для этого мини-дека: компактная шапка, чтобы не отвлекать от слайдов. */
+  .toolbar{position:sticky;top:0;z-index:10}
+  .deck{width:min(1600px,calc(100% - 48px));margin:22px auto 32px}
+  @media print{
+    .toolbar,.hint{display:none!important}
+    body{background:#fff}
+    .deck{width:1600px;margin:0}
+  }
+
+  /* Режим экспорта: только слайд 1600×900, без панели. Откройте ?export#slide-1. */
+  body.export{background:#fff}
+  body.export .toolbar, body.export .hint{display:none!important}
+  body.export .deck{width:1600px;margin:0}
+  body.export .slide-shell{width:1600px!important;height:900px!important;aspect-ratio:auto;box-shadow:none;border-radius:0}
+</style>
+</head>
+<body>
+
+<nav class="toolbar" aria-label="Управление презентацией">
+  <span class="toolbar__brand">MWS / Зачем это бизнесу</span>
+  <button class="tool" id="prev" aria-label="Предыдущий слайд">←</button>
+  <span class="toolbar__count" id="counter" aria-live="polite">1 / 2</span>
+  <button class="tool" id="next" aria-label="Следующий слайд">→</button>
+  <span class="toolbar__spacer"></span>
+  <button class="tool" id="fullscreen">На весь экран</button>
+  <button class="tool tool--primary" id="print">Печать / PDF</button>
+</nav>
+<p class="hint">← → переключают слайды · 1 минута · два слайда</p>
+
+<main class="deck">
+
+<!-- SLIDE 1: WHY BUSINESS. Master 11 "Результаты и выводы". -->
+<div class="slide-shell" data-name="Проблема стоит не токены">
+<section class="slide" data-master="findings">
+  <header class="topline">
+    <p class="eyebrow">Зачем это бизнесу</p>
+    <span class="master-label">01 / Проблема</span>
+  </header>
+
+  <h2 class="slide-title">Проблема стоит не токены — а операторов</h2>
+
+  <div class="slide-body results-layout">
+    <div>
+      <p class="hero-metric" style="font-size:88px;white-space:nowrap">4 млрд ₽</p>
+      <p class="hero-metric-label">≈ стоимость времени операторов</p>
+      <p class="metric-note">3,25–4,66 млрд ₽ — bottom-up; 4,7–9,3 млрд — оценка по SG&amp;A.<br>Берём консервативные 4 млрд. Без ACW и повторных.</p>
+    </div>
+
+    <ol class="findings">
+      <li>
+        <span class="finding-number">01</span>
+        <div>
+          <h3 class="finding-title">~60 млн обращений в год</h3>
+          <p class="finding-text">9 контакт-центров в 70 регионах (2023). WordPulse — более 300 тыс. обращений в день.</p>
+        </div>
+      </li>
+      <li>
+        <span class="finding-number">02</span>
+        <div>
+          <h3 class="finding-title">460 млн ₽ — уже подтверждённый эффект ИИ</h3>
+          <p class="finding-text">240 млн ₽ за 8 месяцев 2026, план — 460 млн ₽ за год. Это то, что бизнес уже измеряет.</p>
+        </div>
+      </li>
+      <li>
+        <span class="finding-number">03</span>
+        <div>
+          <h3 class="finding-title">Факты — топливо для остальных 87%</h3>
+          <p class="finding-text">Саммаризация, подсказки, умный поиск, 50% автообслуживания. Без извлечения фактов они не работают.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="slide-footer__source">ТАСС/МТС, 2023 · МТС, МСФО 2025, прим. 7 · МТС, ГО-2025, с. 81–83 · MWS AI, 10.11.2026 · business_model.py</span>
+    <span class="page-number">01 / 02</span>
+  </footer>
+</section>
+</div>
+
+<!-- SLIDE 2: ECONOMICS OF COVERAGE. Master 10 "Сравнение решений". -->
+<div class="slide-shell" data-name="Экономика покрытия" hidden>
+<section class="slide" data-master="comparison">
+  <header class="topline">
+    <p class="eyebrow">Экономика решения</p>
+    <span class="master-label">02 / Что меняется</span>
+  </header>
+
+  <h2 class="slide-title">Компактная модель меняет экономику покрытия</h2>
+  <p class="subtitle">Тот же бюджет — но в 10–300 раз больше анализа</p>
+
+  <div class="slide-body">
+    <table class="comparison">
+      <thead>
+        <tr>
+          <th scope="col">Критерий</th>
+          <th scope="col">Базовая линия: glm-5.3 / API</th>
+          <th class="label-accent" scope="col">Предлагаем: компактная модель</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Стоимость извлечения</td>
+          <td>1,00 ₽/звонок</td>
+          <td><strong>0,003–0,085 ₽/звонок</strong></td>
+        </tr>
+        <tr>
+          <td>Стоимость на потоке 60 млн</td>
+          <td>60–173 млн ₽/год</td>
+          <td><strong>0,2–5 млн ₽/год</strong></td>
+        </tr>
+        <tr>
+          <td>Запас на масштабирование</td>
+          <td>нет</td>
+          <td><strong>10–300× при том же бюджете</strong></td>
+        </tr>
+        <tr>
+          <td>Инфраструктура и данные</td>
+          <td>GPU / внешний API</td>
+          <td><strong>CPU / on-prem</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="bottom-note">55–60 млн ₽/год экономии — это 12–13% подтверждённого эффекта ИИ. Но главное — тот же бюджет анализирует в 10–300 раз больше, на CPU и без выхода данных.</p>
+  </div>
+
+  <footer class="slide-footer">
+    <span class="slide-footer__source">MWS GPT, 21.10.2026 · Mistral/OpenAI, 13.11.2026 · расчёт business_model.py</span>
+    <span class="page-number">02 / 02</span>
+  </footer>
+</section>
+</div>
+
+</main>
+
+<script>
+(() => {
+  if (location.search.includes('export')) document.body.classList.add('export');
+  const shells = [...document.querySelectorAll('.slide-shell')];
+  const deck = document.querySelector('.deck');
+  const prev = document.querySelector('#prev');
+  const next = document.querySelector('#next');
+  const counter = document.querySelector('#counter');
+  let current = 0;
+
+  function fit() {
+    shells.forEach(s => {
+      const w = s.getBoundingClientRect().width;
+      if (w) s.style.setProperty('--scale', String(w / 1600));
+    });
+  }
+
+  function show(i) {
+    current = Math.max(0, Math.min(shells.length - 1, i));
+    shells.forEach((s, j) => { s.hidden = j !== current; });
+    counter.textContent = (current + 1) + ' / ' + shells.length;
+    prev.disabled = current === 0;
+    next.disabled = current === shells.length - 1;
+    history.replaceState(null, '', '#slide-' + (current + 1));
+    fit();
+  }
+
+  prev.addEventListener('click', () => show(current - 1));
+  next.addEventListener('click', () => show(current + 1));
+  document.querySelector('#print').addEventListener('click', () => window.print());
+  document.querySelector('#fullscreen').addEventListener('click', async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (e) { /* F11 */ }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('button,input,select,textarea,[contenteditable]')) return;
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); show(0); }
+    if (e.key === 'End') { e.preventDefault(); show(shells.length - 1); }
+  });
+
+  new ResizeObserver(fit).observe(deck);
+  document.addEventListener('fullscreenchange', fit);
+  window.addEventListener('hashchange', () => {
+    const n = Number(location.hash.replace('#slide-', ''));
+    if (n >= 1 && n <= shells.length) show(n - 1);
+  });
+
+  const initial = Number(location.hash.replace('#slide-', ''));
+  show(initial >= 1 && initial <= shells.length ? initial - 1 : 0);
+  document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>
