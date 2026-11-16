@@ -446,6 +446,46 @@ python cfe/ensemble.py cv
 </div></div>
   <footer class="slide-footer"><span class="slide-footer__source">Звонки val: u2027_00073, u2027_00316, u2027_00154, u2027_00207 · реплики приведены с исходными ASR-искажениями</span><span class="page-number"></span></footer>
 </section></div>
+<div class="slide-shell" data-name="Даты для temporal" hidden><section class="slide train-slide train-dense" data-master="spec">
+  <header class="topline"><p class="eyebrow">Метрика temporal</p><span class="master-label">Как получаем даты</span></header>
+  <h2 class="slide-title">Как мы получаем даты для temporal</h2>
+  <p class="train-lead">temporal_recall требует верных valid_from и valid_to. Даты считаем от даты звонка по детерминированным правилам, а не угадываем.</p>
+  <div class="slide-body train-cols" style="grid-template-columns:1.35fr 1fr">
+    <div class="train-col">
+      <h3>Конвейер</h3>
+      <ul>
+        <li><b>Якорь:</b> дата звонка (<code>started_at</code>). Gemma получает в промпте шапку со смещениями: вчера −1, неделю назад −7, месяц назад −N, ближайшие дни недели.</li>
+        <li><b>Правила (<code>rules.py</code>):</b> нечётко находят в реплике выражение даты и переводят его в смещение в днях: «вчера», «N дней назад», «через N дней», «в прошлом месяце», день недели (у agreement — ближайший будущий). Нечётко — из-за ошибок ASR.</li>
+        <li><b>Какое выражение у факта:</b> ближайшее к значению факта, в том же предложении.</li>
+        <li><b>Политика по ячейкам</b> «атрибут | вид выражения»: правило, самое частое смещение в train (prior) или ноль. Подобрана на train по реальной temporal_recall: из 30 ячеек 17 — правило, 11 — prior, 2 — ноль.</li>
+        <li><b>Заявки:</b> статусы идут в фиксированном порядке (принята → в работе → выезд → выполнена), соседние отличаются на 1–2 дня. Явная дата надёжна, остальные выводятся от соседа.</li>
+        <li><b>valid_to:</b> новое значение тарифа, статуса или состояния закрывает старое.</li>
+        <li><b>В ансамбле:</b> у фактов, найденных обеими моделями, дату берём у Gemma (service_state, tariff, ticket_status) или у GLiNER с правилами (agreement), затем притягиваем к ближайшей дате, восстановимой из текста.</li>
+      </ul>
+    </div>
+    <div class="train-col">
+      <h3>Пример: звонок 2026-09-20</h3>
+      <pre class="code" style="font-size:16px;line-height:23px">«…роутер ещё эээ вчера постоянно
+  просит пароль от вай-фай…»
+  вчера → −1 → valid_from 2026-09-19
+
+«…пусть будет через четыре дня…»
+  через N дней → +4 → valid_from 2026-09-24</pre>
+      <h3 style="margin-top:16px">Что считает метрика</h3>
+      <ul>
+        <li>В зачёт идут факты, у которых дата восстановима из транскрипта; action не считается.</li>
+        <li>Нужны оба совпадения: valid_from и valid_to.</li>
+      </ul>
+      <h3 style="margin-top:16px">Результат на val</h3>
+      <ul>
+        <li>День valid_from верен по правилам у 55,3% фактов, с политикой по ячейкам у 62,6%.</li>
+        <li>temporal: ансамбль 0,492, GLiNER 0,394, Gemma 0,448, baseline 0,471.</li>
+      </ul>
+    </div>
+  </div>
+  <footer class="slide-footer"><span class="slide-footer__source">cfe/rules.py · cfe/codec.py · cfe/ensemble.py · cfe/case_metrics.py (recover_dates) · data/date_model.json</span><span class="page-number"></span></footer>
+</section></div>
+
 
 <!-- МАСШТАБИРОВАНИЕ · РАЗДЕЛ -->
 <div class="slide-shell" data-name="Масштабирование" hidden><section class="slide section-slide section-slide--light" data-master="section">
@@ -545,7 +585,6 @@ python cfe/ensemble.py cv
     <div class="train-col">
       <h3>Что нужно</h3>
       <ul>
-        <li><b>Уточнить у организаторов</b>, как скрытый test считает неизвестный атрибут: без gold он даст только лишние факты.</li>
         <li><b>Примеры нового типа:</b> размеченные (gold) или сгенерированные LLM с проверкой; без них модель тип не выучит. Нужны и звонки без него.</li>
         <li><b>Правки в коде</b> везде, где перечислены атрибуты: схема GLiNER, кодеки Gemma, сборка SFT, метрики, признаки реранкера, API и валидатор.</li>
       </ul>
@@ -602,45 +641,6 @@ python cfe/ensemble.py cv
   <footer class="slide-footer"><span class="slide-footer__source">1× Tesla V100 32 ГБ · cfe/bench.py: прогрев исключён, загрузка моделей не входит</span><span class="page-number"></span></footer>
 </section></div>
 
-<!-- 10 · ДЕМОНСТРАЦИЯ -->
-<div class="slide-shell" data-name="Демонстрация" hidden><section class="slide" data-master="comparison">
-  <header class="topline"><p class="eyebrow">Демонстрация</p><span class="master-label">Запрос и ответ</span></header>
-  <h2 class="slide-title">Демо: транскрипт → факты по HTTP</h2>
-  <div class="slide-body two-col" style="grid-template-columns:1fr 1.2fr">
-    <div>
-      <pre class="code">docker run --rm --gpus all -p 8000:8000 \
-  cfe-gpu:1.0-v100
-
-curl -s localhost:8000/extract \
-  -H 'content-type: application/json' -d '{
- "call_id": "u2027_00005:call0000",
- "started_at": "2026-06-27T16:00:00",
- "turns": [
-  {"speaker": "operator", "text": "служба тепнеческой поддержки…"},
-  {"speaker": "client",   "text": "…беда с интернетом…"},
-  … 14 реплик … ]}'</pre>
-      <p class="note-small" style="margin-top:12px">Образы: CPU (amd64) и GPU (V100 / vLLM); веса внутри, сеть не нужна. Ручки: /extract, /extract_batch (до 64), /health, /docs.</p>
-    </div>
-    <div>
-      <pre class="code">{"call_id": "u2027_00005:call0000",
- "facts": [
-  {"object": {"type": "device", "name": "сплиттер"},
-   "attribute": "service_state",
-   "value": "слабый сигнал вай-фай", "polarity": 1,
-   "speaker": "client",
-   "valid_from": "2026-06-26T00:00:00", "valid_to": null,
-   "source": {"turn_idx": 1, "span": [162, 183],
-              "quote": "слабый сигнал вай-фэй"}},
-  {"attribute": "agreement",
-   "value": "перенастройка приставки удалённо",
-   "speaker": "operator", "valid_from": "2026-06-30T00:00:00",
-   "source": {"turn_idx": 10, …}},
-  … ещё 1 факт … ]}</pre>
-      <p class="note-small" style="margin-top:12px">Реальный ответ API на первом звонке val: 3 факта, около 2,7 с на звонок на V100 (vLLM), схема валидна на 100% звонков.</p>
-    </div>
-  </div>
-  <footer class="slide-footer"><span class="slide-footer__source">Ответ сокращён (поля опущены, показаны 2 из 3 фактов) · Команда one-zero-eight · MTS MWS · Innopolis Global Hack · 13–16 ноября 2026</span><span class="page-number"></span></footer>
-</section></div>
 <div class="slide-shell" data-name="Видео демонстрации" hidden><section class="slide video-slide" data-master="comparison">
   <header class="topline"><p class="eyebrow">Демонстрация</p><span class="master-label">Кейс MTS MWS</span></header>
   <h2 class="slide-title">Inference через API</h2>
