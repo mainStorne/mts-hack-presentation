@@ -23,10 +23,6 @@ mark{background:#ffd0da;color:var(--ink);border-radius:4px;padding:0 2px}
 .note b{color:var(--red)}
 .term{margin:0;background:#14171a;color:#e8eaed;padding:16px 56px 20px;height:132px;font:400 22px/32px "Noto Sans Mono","DejaVu Sans Mono",monospace;display:flex;flex-direction:column;justify-content:center;gap:4px}
 .term .p{color:#6be4a3}.term .dim{color:#8b949e}.term .ok{color:#6be4a3}.term .cur{display:inline-block;width:12px;height:24px;background:#e8eaed;vertical-align:-4px}
-.intro{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 140px;gap:26px}
-.intro .e{font:500 24px/30px var(--compact);color:var(--red);letter-spacing:.06em;text-transform:uppercase}
-.intro h1{margin:0;font-size:92px;line-height:100px}.intro p{margin:0;font:400 34px/46px var(--body);color:var(--muted)}
-.hide{visibility:hidden}
 </style></head>
 <body><div class="frame" id="f"></div>
 <script src="data.js"></script>
@@ -68,12 +64,8 @@ function pane(){
 let note='';
 if(S.note)note=S.note;
 let term='';
-const typed=CMD.slice(0,S.typed==null?CMD.length:S.typed);
-if(S.phase==='type'||S.phase==='sent'||!S.phase)term=`<div><span class="p">$</span> ${esc(typed)}${S.phase==='type'?'<span class="cur"></span>':''}</div><div class="dim">&nbsp;</div>`;
-else if(S.phase==='run')term=`<div><span class="p">$</span> ${esc(CMD)}</div><div class="dim">… ${S.elapsed.toFixed(1)} с  ·  GLiNER + Gemma + реранкер</div>`;
+if(S.phase==='run')term=`<div><span class="p">$</span> ${esc(CMD)}</div><div class="dim">… ${S.elapsed.toFixed(1)} с  ·  GLiNER + Gemma + реранкер</div>`;
 else term=`<div><span class="p">$</span> ${esc(CMD)}</div><div class="ok">HTTP 200 · ${DATA.latency} с · ${RESP.facts.length} факта · схема валидна</div>`;
-document.getElementById('f').innerHTML = S.phase==='intro'
- ? `<div class="intro"><div class="e">MWS Cloud Platform · Кейс MTS MWS</div><h1>Inference через API</h1><p>Транскрипт звонка → компактные факты.<br>Реальный запрос и ответ, звонок из val: ${esc(REQ.call_id.split(':')[0])}</p></div>`
- : `<div class="top"><div class="brand"><img src="../mws-mark.svg" alt="">MWS Cloud Platform</div><span class="tag">one-zero-eight · CompactFactExtraction</span></div>
+document.getElementById('f').innerHTML = `<div class="top"><div class="brand"><img src="../mws-mark.svg" alt="">MWS Cloud Platform</div><span class="tag">one-zero-eight · CompactFactExtraction</span></div>
     ${pane()}<div class="note"><span>${note}</span></div><div class="term">${term}</div>`;
 </script></body></html>

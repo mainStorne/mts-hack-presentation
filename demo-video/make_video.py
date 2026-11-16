@@ -5,7 +5,7 @@ Needs: chromium (headless screenshots) and ffmpeg. Env: CHROME=/path/to/chromium
 
 request.json / response.json are a real call to POST /extract (val call u2027_00299:call0000,
 measured latency ~2.0 s on V100, vLLM). The video is built from deterministic HTML frames
-(demo.html?s=<state>), so it can be re-rendered without the server.
+(demo.html?s=<state>), so it can be re-rendered without the server. No intro card: the title is on the slide.
 """
 import json
 import os
@@ -41,13 +41,11 @@ NOTES = [
 ]
 FINAL = "<b>3 из 3 фактов совпали с эталоном val</b>, даты тоже · schema 100%"
 
-# frame = (state, seconds)
-frames = [({"phase": "intro"}, 3.0)]
-for n in range(0, len(CMD) + 1, 3):
-    frames.append(({"phase": "type", "typed": n}, 0.07))
-frames.append(({"phase": "type", "typed": len(CMD)}, 0.8))
-for i in range(int(LATENCY * 10) + 1):
-    frames.append(({"phase": "run", "typed": len(CMD), "elapsed": i / 10}, 0.1))
+# frame = (state, seconds). The title card and the command typing are not in the video:
+# the title lives on the slide, so the clip starts when the request is already running.
+frames = []
+for i in range(12, int(LATENCY * 10) + 1):
+    frames.append(({"phase": "run", "elapsed": i / 10}, 0.1))
 # response reveal: line count per fact (header 3 lines, 9 lines per fact, footer 2)
 HEAD, PER = 3, 9
 total = HEAD + PER * len(response["facts"]) + 2
