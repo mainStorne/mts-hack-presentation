@@ -1,0 +1,62 @@
+{
+ "call_id": "u2027_00299:call0000",
+ "facts": [
+  {
+   "object": {
+    "type": "device",
+    "name": "роутер Keenetic Extra"
+   },
+   "attribute": "service_state",
+   "value": "постоянно просит пароль от вай-фай",
+   "polarity": 1,
+   "speaker": "client",
+   "valid_from": "2026-09-19T00:00:00",
+   "valid_to": null,
+   "source": {
+    "turn_idx": 1,
+    "span": [
+     121,
+     154
+    ],
+    "quote": "остоянно просит пароль от вай-фай"
+   }
+  },
+  {
+   "object": {
+    "type": "client",
+    "name": "Марин Викторовна"
+   },
+   "attribute": "action",
+   "value": "перезапуск приложения домофона — не помогло",
+   "polarity": 1,
+   "speaker": "client",
+   "valid_from": "2026-09-20T14:00:00",
+   "valid_to": null,
+   "source": {
+    "turn_idx": 9,
+    "span": [
+     20,
+     70
+    ],
+    "quote": "Перезапуск прилосения домофона делала — не памогло"
+   }
+  },
+  {
+   "object": {
+    "type": "client",
+    "name": "Марин Викторовна"
+   },
+   "attribute": "agreement",
+   "value": "перезвонок специалиста",
+   "polarity": 1,
+   "speaker": "client",
+   "valid_from": "2026-09-24T00:00:00",
+   "valid_to": null,
+   "source": {
+    "turn_idx": 11,
+    "span": null,
+    "quote": null
+   }
+  }
+ ]
+}

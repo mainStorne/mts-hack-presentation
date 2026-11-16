@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>inference demo frame</title>
+<link rel="stylesheet" href="../masters.css">
+<style>
+html,body{margin:0;padding:0;width:1920px;height:1080px;overflow:hidden;background:#fff;color:var(--ink);font-family:var(--body)}
+.frame{position:relative;width:1920px;height:1080px;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;padding:26px 56px 0}
+.brand{display:flex;align-items:center;gap:12px;font:500 22px/28px var(--compact)}.brand img{width:34px;height:34px}
+.tag{font:400 20px/26px var(--body);color:var(--muted)}
+h1{font:500 40px/48px var(--wide);letter-spacing:-.02em;margin:14px 56px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:32px;padding:18px 56px 0;flex:1;min-height:0}
+.pane{border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.pane h2{margin:0;padding:12px 20px;background:var(--soft);font:500 22px/28px var(--compact);display:flex;justify-content:space-between}
+.turn{display:flex;gap:12px;margin-bottom:4px;font:400 16.5px/21.5px var(--body)}
+.who{flex:none;width:86px;font:500 13.5px/21.5px var(--compact);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.who.c{color:var(--red)}
+.turn.on{background:#fff0f3;border-radius:8px;margin-left:-8px;padding-left:8px}
+mark{background:#ffd0da;color:var(--ink);border-radius:4px;padding:0 2px}
+.json{font:400 17px/22px "Noto Sans Mono","DejaVu Sans Mono",monospace;white-space:pre;margin:0}
+.json .k{color:#7335a2}.json .s{color:#1b9388}.json .n{color:#b16c19}.json .ln.on{background:#fff0f3}
+.json .ln{display:block;margin:0 -20px;padding:0 20px}
+.note{margin:0 56px 0;height:44px;display:flex;align-items:center;gap:14px;font:500 22px/30px var(--compact);color:var(--ink)}
+.note b{color:var(--red)}
+.term{margin:0;background:#14171a;color:#e8eaed;padding:16px 56px 20px;height:132px;font:400 22px/32px "Noto Sans Mono","DejaVu Sans Mono",monospace;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.term .p{color:#6be4a3}.term .dim{color:#8b949e}.term .ok{color:#6be4a3}.term .cur{display:inline-block;width:12px;height:24px;background:#e8eaed;vertical-align:-4px}
+.intro{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;justify-content:center;padding:0 140px;gap:26px}
+.intro .e{font:500 24px/30px var(--compact);color:var(--red);letter-spacing:.06em;text-transform:uppercase}
+.intro h1{margin:0;font-size:92px;line-height:100px}.intro p{margin:0;font:400 34px/46px var(--body);color:var(--muted)}
+.hide{visibility:hidden}
+</style></head>
+<body><div class="frame" id="f"></div>
+<script src="data.js"></script>
+<script>
+const S=JSON.parse(decodeURIComponent((location.search.match(/s=([^&]*)/)||[0,'%7B%7D'])[1]));
+const REQ=DATA.request, RESP=DATA.response, CMD=DATA.cmd;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const J=v=>JSON.stringify(v);
+const k=s=>`<span class="k">"${s}"</span>`, str=v=>`<span class="s">${esc(J(v))}</span>`, num=v=>`<span class="n">${esc(J(v))}</span>`;
+function val(v){return v===null||typeof v==='number'?num(v):str(v)}
+// compact, complete rendering of the API response (one entry per source line)
+const lines=[];function L(h,fact){lines.push({h,fact})}
+L('{');L(`  ${k('call_id')}: ${str(RESP.call_id)},`);L(`  ${k('facts')}: [`);
+RESP.facts.forEach((f,i)=>{const last=i===RESP.facts.length-1,src=f.source;
+ L('    {',i);
+ L(`      ${k('object')}: {${k('type')}: ${str(f.object.type)}, ${k('name')}: ${str(f.object.name)}},`,i);
+ L(`      ${k('attribute')}: ${str(f.attribute)},`,i);
+ L(`      ${k('value')}: ${str(f.value)},`,i);
+ L(`      ${k('polarity')}: ${num(f.polarity)}, ${k('speaker')}: ${str(f.speaker)},`,i);
+ L(`      ${k('valid_from')}: ${str(f.valid_from)}, ${k('valid_to')}: ${val(f.valid_to)},`,i);
+ L(`      ${k('source')}: {${k('turn_idx')}: ${num(src.turn_idx)}, ${k('span')}: ${val(src.span)},`,i);
+ L(`        ${k('quote')}: ${val(src.quote)}}`,i);
+ L('    }'+(last?'':','),i)});
+L('  ]');L('}');
+function pane(){
+ const hl=S.hl; // fact index being shown
+ let tr='';
+ REQ.turns.forEach((t,i)=>{
+  let text=esc(t.text),on=false;
+  if(hl!=null){const f=RESP.facts[hl];if(f.source.turn_idx===i){on=true;
+   if(f.source.span){const[a,b]=f.source.span;text=esc(t.text.slice(0,a))+'<mark>'+esc(t.text.slice(a,b))+'</mark>'+esc(t.text.slice(b))}}}
+  tr+=`<div class="turn${on?' on':''}"><span class="who ${t.speaker==='client'?'c':''}">${t.speaker==='client'?'клиент':'оператор'}</span><span>${text}</span></div>`});
+ const shown=S.lines==null?0:S.lines;
+ const js=lines.map((l,i)=>`<span class="ln${hl!=null&&l.fact===hl&&i<shown?' on':''}">${i<shown?l.h:' '}</span>`).join('');
+ return `<div class="cols">
+  <div class="pane"><h2>Запрос · POST /extract <span>${esc(REQ.call_id)} · ${esc(REQ.started_at)} · ${REQ.turns.length} реплик</span></h2><div class="body">${tr}</div></div>
+  <div class="pane"><h2>Ответ · 200 OK <span>${S.phase==='run'?'обработка…':(S.phase==='resp'||S.phase==='end'?(DATA.latency+' с'):'')}</span></h2><div class="body"><pre class="json">${js}</pre></div></div>
+ </div>`}
+let note='';
+if(S.note)note=S.note;
+let term='';
+const typed=CMD.slice(0,S.typed==null?CMD.length:S.typed);
+if(S.phase==='type'||S.phase==='sent'||!S.phase)term=`<div><span class="p">$</span> ${esc(typed)}${S.phase==='type'?'<span class="cur"></span>':''}</div><div class="dim">&nbsp;</div>`;
+else if(S.phase==='run')term=`<div><span class="p">$</span> ${esc(CMD)}</div><div class="dim">… ${S.elapsed.toFixed(1)} с  ·  GLiNER + Gemma + реранкер</div>`;
+else term=`<div><span class="p">$</span> ${esc(CMD)}</div><div class="ok">HTTP 200 · ${DATA.latency} с · ${RESP.facts.length} факта · схема валидна</div>`;
+document.getElementById('f').innerHTML = S.phase==='intro'
+ ? `<div class="intro"><div class="e">MWS Cloud Platform · Кейс MTS MWS</div><h1>Inference через API</h1><p>Транскрипт звонка → компактные факты.<br>Реальный запрос и ответ, звонок из val: ${esc(REQ.call_id.split(':')[0])}</p></div>`
+ : `<div class="top"><div class="brand"><img src="../mws-mark.svg" alt="">MWS Cloud Platform</div><span class="tag">one-zero-eight · CompactFactExtraction</span></div>
+    ${pane()}<div class="note"><span>${note}</span></div><div class="term">${term}</div>`;
+</script></body></html>

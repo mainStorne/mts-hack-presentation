@@ -15,6 +15,9 @@ chart='data:image/svg+xml;base64,'+base64.b64encode((root/'resources-quality.svg
 html=html.replace('src="resources-quality.svg"','src="'+chart+'"')
 for qr in ('qr-github','qr-slides'):
     html=html.replace('src="assets/'+qr+'.svg"','src="data:image/svg+xml;base64,'+base64.b64encode((root/'assets'/(qr+'.svg')).read_bytes()).decode()+'"')
+poster='data:image/png;base64,'+base64.b64encode((root/'assets'/'demo-poster.png').read_bytes()).decode()
+html=html.replace('assets/demo-poster.png',poster)
+html=html.replace('src="exports/inference-demo.mp4"','src="data:video/mp4;base64,'+base64.b64encode((root/'exports'/'inference-demo.mp4').read_bytes()).decode()+'"')
 import glob
 for f in sorted(glob.glob(str(root/'assets/team/*.png'))):
     rel='assets/team/'+Path(f).name
