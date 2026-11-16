@@ -299,23 +299,30 @@ pre.code{margin:0;background:var(--soft);border-radius:10px;padding:16px 22px;fo
       <h3>GLiNER</h3>
       <p class="adapter">LoRA-адаптер runs/struct-lora-v21</p>
       <ul>
-        <li>Адаптер даёт сырые спаны с уверенностью. Пороги подбираются на dev, не на val.</li>
-        <li>Сначала перебор сетки </li>
-        <li>Затем покоординатный подбор <code>tau</code> по каждому атрибуту (0.3…0.9).</li>
-        <li>Итоговые значения <code>tau_attr</code>:
+        <li><b>База:</b> gliner2.5-multi-v1 + LoRA r16 / α32; 3,4 млн параметров.</li>
+        <li><b>Данные:</b> train.jsonl → 18 714 пар, негативы 1:1.</li>
+        <li><b>Обучение:</b> 3 эпохи (3 506 шагов), батч 8×2, cosine; lr энкодера 1e-4, головы 5e-4; fp16; лучший чекпоинт по eval_loss.</li>
+        <li><b>Пороги:</b> адаптер даёт сырые спаны с уверенностью. Подбираем на dev, не на val: сетка, затем покоординатно <code>tau</code> по атрибуту (0.3…0.9):
           <div class="tau"><span>service_state<b>0.9</b></span><span>tariff<b>0.5</b></span><span>ticket_status<b>0.5</b></span><span>action<b>0.7</b></span><span>agreement<b>0.8</b></span></div>
-          <div class="train-result"><span>snap_th <b>0.5</b></span><span>date_tau <b>null</b></span><span>dev F1 <b>0.5602</b></span><span>dev_gate_ok <b>false</b></span></div>
         </li>
-        <li class="muted">3 эпохи, около 1 ч 10 мин на V100.</li>
+        <li class="muted">≈1 ч 10 мин на V100. Только предоставленный train.jsonl.</li>
       </ul>
     </div>
     <div class="train-col">
       <h3>Gemma</h3>
       <p class="adapter">LoRA-адаптер gemma-v21-targeted-gen</p>
       <ul>
-        <li>Дообучения этих моделей по фолдам нет. Ансамбль работает с уже готовыми предсказаниями.</li>
-        <li>Данные: train + синтетика + 1 311 звонков, сгенерированных LLM и отфильтрованных (5 402 примера), 3 эпохи, около 2 ч 15 мин на V100.</li>
-        <li class="muted">GLiNER обучался только на предоставленном train.jsonl; Gemma — также на сгенерированных данных.</li>
+        <li><b>База:</b> gemma-3-1b-it + LoRA r16 / α32; обучается 13 млн из 1,01 млрд параметров.</li>
+        <li><b>Данные:</b> train + целевая синтетика + 1&nbsp;311 LLM-звонков → 5&nbsp;402 примера (компактный JSON).</li>
+        <li><b>Loss только на ответе:</b> промпт маскируется (≤&nbsp;3&nbsp;072 токенов).</li>
+        <li><b>Обучение:</b> 3 эпохи (1 011 шагов), lr 2e-4, батч 4×4 = 16, warmup 5%, fp16 + sdpa; train loss 0,21.</li>
+        <li class="muted">≈2 ч 15 мин на V100 (8 058 с), пик VRAM 5,6 ГБ. Обучалась и на сгенерированных данных.</li>
+      </ul>
+    </div>
+    <div class="train-col" style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px">
+      <h3>Реранкер</h3>
+      <ul>
+        <li>Логистическая регрессия на 54 признаках решает, чьи факты попадают в ответ; 5 фолдов по клиентам, метрики OOF; ≈25 мин на CPU. Модели по фолдам не дообучаются.</li>
       </ul>
     </div>
   </div>
