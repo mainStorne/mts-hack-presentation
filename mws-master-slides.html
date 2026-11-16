@@ -108,6 +108,10 @@
 .train-slide .tau span b{color:var(--red)}
 .train-slide .train-result span{color:var(--muted)}
 .train-slide .train-result span b{color:var(--ink)}
+.train-dense .train-col ul{gap:8px}.train-dense .train-col li{font-size:19px;line-height:26px}.train-dense .train-col li::before{top:10px}.train-dense .train-col .adapter{margin-bottom:8px;font-size:20px;line-height:26px}.train-dense .train-col h3{font-size:26px;line-height:32px}.train-dense .tau span{font-size:16px;line-height:22px;padding:2px 10px}
+.train-dense .train-lead{font-size:22px;line-height:30px}.train-dense .train-cols{gap:48px}
+.train-dense .rr-block{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}.train-dense .rr-block h3{font:500 26px/32px var(--compact);margin-bottom:6px}.train-dense .rr-block h3 span{font:400 19px/26px var(--body);color:var(--muted);margin-left:10px}
+.train-dense .rr-cols{display:grid;grid-template-columns:1fr 1fr;gap:48px}.train-dense .rr-cols ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}.train-dense .rr-cols li{font:400 19px/26px var(--body);padding-left:22px;position:relative}.train-dense .rr-cols li::before{content:"";position:absolute;left:0;top:10px;width:8px;height:8px;border-radius:50%;background:var(--red)}
 .finetune-slide .slide-title{font-size:56px}
 .finetune-slide .ft-cols{display:grid;grid-template-columns:1fr 1fr;gap:64px;flex:1;min-height:0;align-items:start;padding-top:24px}
 .finetune-slide .ft-col{border-top:4px solid var(--red);padding-top:28px;display:flex;flex-direction:column;gap:20px}
@@ -290,7 +294,7 @@ pre.code{margin:0;background:var(--soft);border-radius:10px;padding:16px 22px;fo
   </div>
 </section></div>
 <!-- КАК ОБУЧАЛИ -->
-<div class="slide-shell" data-name="Как обучали" hidden><section class="slide train-slide" data-master="spec">
+<div class="slide-shell" data-name="Как обучали" hidden><section class="slide train-slide train-dense" data-master="spec">
   <header class="topline"><p class="eyebrow">Обучение</p><span class="master-label">Как обучали</span></header>
   <h2 class="slide-title">Как обучали</h2>
   <p class="train-lead">Ансамбль состоит из двух предобученных моделей, реранкера и жадной настройки порогов.</p>
@@ -319,11 +323,19 @@ pre.code{margin:0;background:var(--soft);border-radius:10px;padding:16px 22px;fo
         <li class="muted">≈2 ч 15 мин на V100 (8 058 с), пик VRAM 5,6 ГБ. Обучалась и на сгенерированных данных.</li>
       </ul>
     </div>
-    <div class="train-col" style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px">
-      <h3>Реранкер</h3>
-      <ul>
-        <li>Логистическая регрессия на 54 признаках решает, чьи факты попадают в ответ; 5 фолдов по клиентам, метрики OOF; ≈25 мин на CPU. Модели по фолдам не дообучаются.</li>
-      </ul>
+    <div class="rr-block">
+      <h3>Реранкер <span>логистическая регрессия на 54 признаках</span></h3>
+      <div class="rr-cols">
+        <ul>
+          <li><b>Что делает:</b> оценивает вероятность, что факт, найденный только одной моделью, верен. Факты, найденные обеими, берём всегда; «одиночки» проходят при оценке ≥ порога θ (0,25…0,5, подбирается).</li>
+          <li><b>Признаки:</b> атрибут и модель-источник, уверенность GLiNER и Gemma, значение из каталога, совпадение с фактами другой модели, доля слов значения в реплике, позиция реплики, спикер.</li>
+        </ul>
+        <ul>
+          <li><b>Метка:</b> «одиночка» совпал с gold (match_facts). Обучен на val, 383 звонка, поэтому метрики считаем только OOF.</li>
+          <li><b>Схема:</b> 5 фолдов по клиентам. Веса и θ подбираем на 4 фолдах, проверяем на пятом; итоговые веса — на всём val.</li>
+          <li><b>Обучение:</b> свой градиентный спуск, 1 500 шагов, L2 1e-3; ≈25 мин на CPU вместе с подбором порога и правил дат.</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section></div>
